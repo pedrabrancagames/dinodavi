@@ -12,7 +12,7 @@ AFRAME.registerComponent('spawner', {
         // Dinossauros que ficam no chão
         this.groundDinosaurs = [
             'dimetrodon.glb', 'dinosaur.glb', 'iguanodon.glb',
-            'macrothorax.glb', 'mamenn.glb', 't-rex.glb', 'triceratops.glb'
+            'mamenn.glb', 't-rex.glb', 'triceratops.glb'
         ];
 
         // Dinossauros que voam
@@ -25,7 +25,6 @@ AFRAME.registerComponent('spawner', {
             'dimetrodon.glb': '0.5 0.5 0.5',
             'dinosaur.glb': '0.5 0.5 0.5',
             'iguanodon.glb': '0.5 0.5 0.5',
-            'macrothorax.glb': '0.5 0.5 0.5',
             'mamenn.glb': '0.3 0.3 0.3',
             't-rex.glb': '0.5 0.5 0.5',
             'triceratops.glb': '0.5 0.5 0.5',
@@ -53,7 +52,7 @@ AFRAME.registerComponent('spawner', {
 
     spawn: function () {
         const el = document.createElement('a-entity');
-        
+
         // 20% de chance de ser pteradactal (voador)
         const isFlying = Math.random() < 0.2;
         let modelName;
@@ -88,7 +87,7 @@ AFRAME.registerComponent('spawner', {
         const radius = 3 + Math.random() * (this.data.range - 3);
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
-        
+
         // Y position: voador fica alto, terrestre fica no chão
         const y = isFlying ? (1.5 + Math.random() * 1.5) : (0.3 + Math.random() * 0.3);
 

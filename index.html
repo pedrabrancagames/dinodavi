@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🦖 Jurassic Park - Caça aos Dinossauros AR</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./visual-enhancements.css" />
+</head>
+
+<body>
+  <div id="ui-layer">
+    <div id="damage-overlay"></div>
+    <!-- HUD durante o jogo -->
+    <div id="hud" style="display: none;">
+      <div id="score-board">🏆 <span id="score">0</span></div>
+      <div id="timer-board">⏱️ <span id="timer">60</span>s</div>
+    </div>
+
+    <!-- Mira Central -->
+    <div id="crosshair"></div>
+
+    <!-- Botão de Tiro (Mantido para mobile/touch) -->
+    <button id="shoot-btn" style="display: none;">🔫 ATIRAR</button>
+
+    <!-- Tela Inicial -->
+    <div id="start-screen" class="screen">
+      <h1>🦖 Jurassic Park</h1>
+      <p>Olá DAVI! 🎯 Cace todos os dinossauros antes que o tempo acabe! 🦕</p>
+      <button id="start-btn" class="primary-btn">🦕 Começar Caçada</button>
+    </div>
+
+    <!-- Tela de Game Over -->
+    <div id="game-over-screen" class="screen" style="display: none;">
+      <h1>🦖 Caçada Finalizada!</h1>
+      <p>✨ Sua Pontuação: <span id="final-score">0</span></p>
+      <p>🏆 Melhor Pontuação: <span id="high-score">0</span></p>
+      <button id="restart-btn" class="primary-btn">🔄 Jogar Novamente</button>
+    </div>
+  </div>
+
+  <a-scene renderer="alpha: true; antialias: true; colorManagement: true;" xr-mode-ui="enabled: false; XRMode: ar;"
+    webxr="optionalFeatures: dom-overlay; overlayElement: #ui-layer;" ar-hit-test="target: #reticle; type: map;">
+    <!-- Gerenciador do Jogo -->
+    <a-entity game-manager></a-entity>
+
+    <!-- Spawner de Dinossauros -->
+    <a-entity spawner="interval: 2000; range: 5"></a-entity>
+
+    <!-- Câmera com Raycaster para o tiro -->
+    <a-entity id="rig">
+      <a-camera position="0 1.6 0" look-controls="enabled: false">
+        <a-entity id="weapon" weapon raycaster="objects: .dinosaur; far: 20; showLine: false"
+          position="0 0 -0.5"></a-entity>
+        <a-cursor visible="false"></a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- Luzes -->
+    <a-light type="ambient" intensity="0.5"></a-light>
+    <a-light type="directional" position="1 2 3" intensity="1"></a-light>
+  </a-scene>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>

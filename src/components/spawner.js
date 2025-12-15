@@ -1,0 +1,128 @@
+AFRAME.registerComponent('spawner', {
+    schema: {
+        interval: { type: 'number', default: 1000 }, // Checa a cada 1 segundo
+        range: { type: 'number', default: 5 },
+        maxDinosaurs: { type: 'number', default: 6 },
+        enabled: { type: 'boolean', default: true }
+    },
+
+    init: function () {
+        this.timer = 0;
+
+        // Dinossauros que ficam no chão
+        this.groundDinosaurs = [
+            'dimetrodon.glb', 'dinosaur.glb', 'iguanodon.glb',
+            'macrothorax.glb', 'mamenn.glb', 't-rex.glb', 'triceratops.glb'
+        ];
+
+        // Dinossauros que voam
+        this.flyingDinosaurs = [
+            'pteradactal.glb'
+        ];
+
+        // Escalas personalizadas para cada modelo
+        this.customScales = {
+            'dimetrodon.glb': '0.5 0.5 0.5',
+            'dinosaur.glb': '0.5 0.5 0.5',
+            'iguanodon.glb': '0.5 0.5 0.5',
+            'macrothorax.glb': '0.5 0.5 0.5',
+            'mamenn.glb': '0.3 0.3 0.3',
+            't-rex.glb': '0.5 0.5 0.5',
+            'triceratops.glb': '0.5 0.5 0.5',
+            'pteradactal.glb': '0.4 0.4 0.4',
+        };
+    },
+
+    tick: function (time, timeDelta) {
+        if (!this.data.enabled) return;
+
+        this.timer += timeDelta;
+        if (this.timer >= this.data.interval) {
+            this.trySpawn();
+            this.timer = 0;
+        }
+    },
+
+    trySpawn: function () {
+        const dinoCount = document.querySelectorAll('.dinosaur').length;
+
+        if (dinoCount < this.data.maxDinosaurs) {
+            this.spawn();
+        }
+    },
+
+    spawn: function () {
+        const el = document.createElement('a-entity');
+        
+        // 20% de chance de ser pteradactal (voador)
+        const isFlying = Math.random() < 0.2;
+        let modelName;
+
+        if (isFlying) {
+            modelName = this.flyingDinosaurs[Math.floor(Math.random() * this.flyingDinosaurs.length)];
+        } else {
+            modelName = this.groundDinosaurs[Math.floor(Math.random() * this.groundDinosaurs.length)];
+        }
+
+        el.classList.add('dinosaur');
+        el.setAttribute('animation-mixer', '');
+        el.setAttribute('gltf-model', `url(/models/${modelName})`);
+
+        // Escala Alvo
+        const targetScaleStr = this.customScales[modelName] || '0.5 0.5 0.5';
+
+        // Iniciar invisível ou com escala 0 para evitar glitch de posição
+        el.setAttribute('scale', '0 0 0');
+        el.setAttribute('visible', 'true');
+
+        // Animação de Entrada (Pop-in)
+        el.setAttribute('animation__spawn', {
+            property: 'scale',
+            to: targetScaleStr,
+            dur: 800,
+            easing: 'easeOutElastic'
+        });
+
+        // Posição Aleatória
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 3 + Math.random() * (this.data.range - 3);
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        
+        // Y position: voador fica alto, terrestre fica no chão
+        const y = isFlying ? (1.5 + Math.random() * 1.5) : (0.3 + Math.random() * 0.3);
+
+        el.setAttribute('position', { x, y, z });
+
+        // Animação de movimento
+        if (isFlying) {
+            // Pteradactal flutua no ar
+            el.setAttribute('animation__float', {
+                property: 'position',
+                to: `${x} ${y + 0.5} ${z}`,
+                dir: 'alternate',
+                dur: 2000 + Math.random() * 1000,
+                loop: true,
+                easing: 'easeInOutSine'
+            });
+        } else {
+            // Dinossauros terrestres ficam parados ou andam lentamente
+            el.setAttribute('animation__idle', {
+                property: 'rotation',
+                to: `0 ${Math.random() * 360} 0`,
+                dur: 5000 + Math.random() * 3000,
+                loop: true,
+                easing: 'linear'
+            });
+        }
+
+        // Rotação aleatória inicial
+        el.setAttribute('rotation', `0 ${Math.random() * 360} 0`);
+
+        this.el.sceneEl.appendChild(el);
+    },
+
+    getRandomColor: function () {
+        return '#FFFFFF';
+    }
+});

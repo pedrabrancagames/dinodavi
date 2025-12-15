@@ -1,0 +1,392 @@
+/* 🦖 Jurassic Park - Caça aos Dinossauros */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap');
+
+:root {
+  /* Paleta de Cores Temática Jurassic Park */
+  --jungle-dark: #1a3a1a;
+  --jungle-green: #2d5a27;
+  --jungle-light: #4a7c42;
+  --jungle-bright: #6ab04c;
+  --amber-orange: #FF6600;
+  --warning-red: #C41E3A;
+  --fossil-gold: #D4AC0D;
+  --earth-brown: #5D4E37;
+  --sky-blue: #5DADE2;
+  --dino-orange: #E67E22;
+
+  /* Fontes */
+  --font-title: 'Fredoka One', cursive;
+  --font-body: 'Quicksand', sans-serif;
+}
+
+/* Animação de Bolhas */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(-100vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-body);
+  background: linear-gradient(180deg, var(--jungle-dark) 0%, var(--jungle-green) 50%, var(--jungle-light) 100%);
+  color: white;
+}
+
+html {
+  background-color: var(--jungle-dark);
+}
+
+#ui-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+  padding-left: calc(20px + env(safe-area-inset-left, 0px));
+  padding-right: calc(20px + env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+}
+
+/* Camada Decorativa - Folhas/Partículas */
+#ui-layer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(106, 176, 76, 0.3) 4px, transparent 4px),
+    radial-gradient(circle at 60% 20%, rgba(106, 176, 76, 0.25) 6px, transparent 6px),
+    radial-gradient(circle at 80% 60%, rgba(74, 124, 66, 0.3) 3px, transparent 3px),
+    radial-gradient(circle at 30% 40%, rgba(45, 90, 39, 0.25) 5px, transparent 5px);
+  background-size:
+    200px 200px,
+    300px 300px,
+    250px 250px,
+    180px 180px;
+  background-position:
+    0 0,
+    50px 50px,
+    100px 20px,
+    150px 80px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#damage-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 102, 0, 0.6) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 9998;
+}
+
+/* --- HUD (Score & Timer) --- */
+#hud {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  pointer-events: none;
+  gap: 10px;
+  z-index: 10;
+}
+
+#score-board,
+#timer-board {
+  background: linear-gradient(135deg, rgba(106, 176, 76, 0.25) 0%, rgba(74, 124, 66, 0.25) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 2px solid rgba(106, 176, 76, 0.5);
+  border-radius: 20px;
+  color: white;
+  padding: 12px 24px;
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  font-weight: 700;
+  box-shadow:
+    0 8px 32px rgba(26, 58, 26, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+#score-board::before,
+#timer-board::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 3s infinite;
+}
+
+#score-board {
+  background: linear-gradient(135deg, rgba(212, 172, 13, 0.3) 0%, rgba(255, 102, 0, 0.3) 100%);
+  border-color: rgba(212, 172, 13, 0.6);
+}
+
+/* --- Crosshair (Mira) --- */
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 102, 0, 0.9);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+    0 0 10px rgba(255, 102, 0, 0.6),
+    0 0 20px rgba(255, 102, 0, 0.4),
+    inset 0 0 10px rgba(255, 102, 0, 0.3);
+  animation: pulse 1.5s ease-in-out infinite;
+  z-index: 5;
+}
+
+#crosshair::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, var(--amber-orange) 0%, var(--dino-orange) 100%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px var(--amber-orange);
+}
+
+/* --- Screens (Start & Game Over) --- */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at top, rgba(26, 58, 26, 0.9) 0%, rgba(26, 58, 26, 0.95) 100%),
+    linear-gradient(180deg, rgba(93, 78, 55, 0.3) 0%, transparent 50%);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  pointer-events: auto;
+  z-index: 10000;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efeito de Folhagem no Background */
+.screen::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 120px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(106, 176, 76, 0.3) 25%,
+      rgba(74, 124, 66, 0.4) 50%,
+      rgba(106, 176, 76, 0.3) 75%,
+      transparent 100%);
+  animation: wave 8s linear infinite;
+  opacity: 0.7;
+}
+
+.screen h1 {
+  font-family: var(--font-title);
+  font-size: 3rem;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, var(--amber-orange) 0%, var(--fossil-gold) 50%, var(--jungle-bright) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  letter-spacing: 2px;
+  animation: shimmer 4s linear infinite;
+  background-size: 200% 100%;
+}
+
+.screen p {
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 35px;
+  max-width: 85%;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  line-height: 1.6;
+  color: var(--shell-pearl);
+}
+
+/* --- Buttons --- */
+.primary-btn {
+  padding: 18px 50px;
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--amber-orange) 0%, var(--dino-orange) 100%);
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50px;
+  box-shadow:
+    0 6px 20px rgba(255, 102, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.primary-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow:
+    0 10px 30px rgba(255, 102, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.primary-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.primary-btn:active {
+  transform: translateY(-1px) scale(1);
+}
+
+/* --- Shoot Button (Mobile) --- */
+#shoot-btn {
+  align-self: center;
+  margin-bottom: 30px;
+  padding: 22px 45px;
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--jungle-bright) 0%, var(--jungle-green) 100%);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50px;
+  box-shadow:
+    0 6px 25px rgba(106, 176, 76, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#shoot-btn:active {
+  transform: scale(0.95);
+  box-shadow:
+    0 3px 15px rgba(106, 176, 76, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .screen h1 {
+    font-size: 2.2rem;
+  }
+
+  .screen p {
+    font-size: 1.1rem;
+  }
+
+  .primary-btn {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+  }
+
+  #score-board,
+  #timer-board {
+    font-size: 1.1rem;
+    padding: 10px 18px;
+  }
+}

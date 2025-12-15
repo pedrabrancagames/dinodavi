@@ -88,8 +88,8 @@ AFRAME.registerComponent('spawner', {
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
 
-        // Y position: voador fica alto, terrestre fica no chão
-        const y = isFlying ? (1.5 + Math.random() * 1.5) : (0.3 + Math.random() * 0.3);
+        // Y position: voador fica alto, terrestre fica NA SUPERFÍCIE (y=0)
+        const y = isFlying ? (1.5 + Math.random() * 1.5) : 0;
 
         el.setAttribute('position', { x, y, z });
 
@@ -104,16 +104,8 @@ AFRAME.registerComponent('spawner', {
                 loop: true,
                 easing: 'easeInOutSine'
             });
-        } else {
-            // Dinossauros terrestres ficam parados ou andam lentamente
-            el.setAttribute('animation__idle', {
-                property: 'rotation',
-                to: `0 ${Math.random() * 360} 0`,
-                dur: 5000 + Math.random() * 3000,
-                loop: true,
-                easing: 'linear'
-            });
         }
+        // Dinossauros terrestres NÃO têm animação de flutuação - ficam firmes no chão
 
         // Rotação aleatória inicial
         el.setAttribute('rotation', `0 ${Math.random() * 360} 0`);

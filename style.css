@@ -263,6 +263,26 @@ html {
   opacity: 0.7;
 }
 
+/* Logo do Jogo */
+.game-logo {
+  max-width: 280px;
+  width: 80%;
+  height: auto;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
+  animation: logoFloat 3s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 .screen h1 {
   font-family: var(--font-title);
   font-size: 3rem;

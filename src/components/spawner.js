@@ -39,7 +39,7 @@ AFRAME.registerComponent('spawner', {
             'mamenn.glb': '0.3 0.3 0.3',
             't-rex.glb': '1.5 1.5 1.5',
             'triceratops.glb': '0.5 0.5 0.5',
-            'pteradactal.glb': '0.4 0.4 0.4',
+            'pteradactal.glb': '1.2 1.2 1.2',
         };
     },
 

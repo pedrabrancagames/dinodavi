@@ -1,6 +1,6 @@
 AFRAME.registerComponent('game-manager', {
     schema: {
-        gameDuration: { type: 'number', default: 60 } // Duração em segundos
+        gameDuration: { type: 'number', default: 300 } // Duração em segundos (5 minutos)
     },
 
     init: function () {
@@ -152,8 +152,12 @@ AFRAME.registerComponent('game-manager', {
     },
 
     updateTimerUI: function () {
-        this.timerEl.innerText = this.timeRemaining;
-        if (this.timeRemaining <= 10) this.timerEl.style.color = '#ff416c';
+        // Formatar como minutos:segundos
+        const minutes = Math.floor(this.timeRemaining / 60);
+        const seconds = this.timeRemaining % 60;
+        this.timerEl.innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (this.timeRemaining <= 30) this.timerEl.style.color = '#ff416c';
         else this.timerEl.style.color = 'white';
     },
 

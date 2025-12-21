@@ -96,6 +96,9 @@ AFRAME.registerComponent('weapon', {
             // Emitir evento com detalhes para o game-manager criar o texto flutuante
             this.el.sceneEl.emit('score-up', { position: hitPosition });
 
+            // Emitir evento para spawner criar novo dinossauro
+            this.el.sceneEl.emit('dinosaur-killed');
+
             // Som de sucesso
             if (this.soundSystem) this.soundSystem.playSound('score-up');
         }

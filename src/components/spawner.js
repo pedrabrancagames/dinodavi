@@ -2,12 +2,20 @@ AFRAME.registerComponent('spawner', {
     schema: {
         interval: { type: 'number', default: 1000 }, // Checa a cada 1 segundo
         range: { type: 'number', default: 5 },
-        maxDinosaurs: { type: 'number', default: 6 },
+        maxDinosaurs: { type: 'number', default: 2 },
         enabled: { type: 'boolean', default: true }
     },
 
     init: function () {
         this.timer = 0;
+
+        // Listener para spawnar novo dinossauro quando um for eliminado
+        this.el.sceneEl.addEventListener('dinosaur-killed', () => {
+            if (this.data.enabled) {
+                // Pequeno delay para evitar spawn instantâneo
+                setTimeout(() => this.trySpawn(), 500);
+            }
+        });
 
         // Dinossauros que ficam no chão
         this.groundDinosaurs = [
@@ -26,7 +34,7 @@ AFRAME.registerComponent('spawner', {
             'dinosaur.glb': '0.5 0.5 0.5',
             'iguanodon.glb': '0.5 0.5 0.5',
             'mamenn.glb': '0.3 0.3 0.3',
-            't-rex.glb': '0.5 0.5 0.5',
+            't-rex.glb': '1.5 1.5 1.5',
             'triceratops.glb': '0.5 0.5 0.5',
             'pteradactal.glb': '0.4 0.4 0.4',
         };

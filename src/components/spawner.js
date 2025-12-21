@@ -8,12 +8,15 @@ AFRAME.registerComponent('spawner', {
 
     init: function () {
         this.timer = 0;
+        this.spawnQueue = 0; // Fila de spawns pendentes
 
         // Listener para spawnar novo dinossauro quando um for eliminado
         this.el.sceneEl.addEventListener('dinosaur-killed', () => {
             if (this.data.enabled) {
+                // Incrementar a fila de spawns
+                this.spawnQueue++;
                 // Pequeno delay para evitar spawn instantâneo
-                setTimeout(() => this.trySpawn(), 500);
+                setTimeout(() => this.processSpawnQueue(), 300);
             }
         });
 
@@ -44,14 +47,51 @@ AFRAME.registerComponent('spawner', {
         if (!this.data.enabled) return;
 
         this.timer += timeDelta;
-        if (this.timer >= this.data.interval) {
-            this.trySpawn();
+        // Verificar a cada 500ms (mais frequente para garantir spawn)
+        if (this.timer >= 500) {
+            this.ensureMinimumDinosaurs();
             this.timer = 0;
         }
     },
 
+    // Processa a fila de spawns pendentes
+    processSpawnQueue: function () {
+        if (!this.data.enabled || this.spawnQueue <= 0) return;
+
+        const currentCount = this.getActiveDinosaurCount();
+        const canSpawn = this.data.maxDinosaurs - currentCount;
+
+        if (canSpawn > 0) {
+            this.spawn();
+            this.spawnQueue--;
+        }
+    },
+
+    // Garante que sempre haja o número mínimo de dinossauros
+    ensureMinimumDinosaurs: function () {
+        const currentCount = this.getActiveDinosaurCount();
+        const needed = this.data.maxDinosaurs - currentCount;
+
+        for (let i = 0; i < needed; i++) {
+            this.spawn();
+        }
+    },
+
+    // Conta apenas dinossauros que ainda estão visíveis (não em explosão)
+    getActiveDinosaurCount: function () {
+        const dinosaurs = document.querySelectorAll('.dinosaur');
+        let count = 0;
+        dinosaurs.forEach(dino => {
+            // Só conta se ainda está visível
+            if (dino.object3D && dino.object3D.visible) {
+                count++;
+            }
+        });
+        return count;
+    },
+
     trySpawn: function () {
-        const dinoCount = document.querySelectorAll('.dinosaur').length;
+        const dinoCount = this.getActiveDinosaurCount();
 
         if (dinoCount < this.data.maxDinosaurs) {
             this.spawn();
